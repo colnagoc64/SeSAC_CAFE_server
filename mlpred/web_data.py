@@ -1,6 +1,8 @@
 import pandas as pd
-import functions as Functions
 
+from main.models import CafeStatus
+from .Functions import cal_distance, gu_finder, kagoo_address_xy
+import joblib
 
 def near_cafe_db(long, lat):
     # near_cafe
@@ -24,11 +26,11 @@ def near_cafe_db(long, lat):
     for i in range(len(df3.index)):
         objlong = df3['long'][i]
         objlat = df3['lat'][i]
-        dis = Functions.cal_distance(stdlong, stdlat, objlong, objlat)
+        dis = cal_distance(stdlong, stdlat, objlong, objlat)
         if dis < 200:
-            near_cafe = count + 1
+            count = count + 1
 
-    return near_cafe
+    return count
 
 def near_subway_db(long, lat):
     # near_subway100
@@ -60,13 +62,13 @@ def near_subway_db(long, lat):
     for i in range(len(df2.index)):
         objlong = df3['long'][i]
         objlat = df3['lat'][i]
-        dis = Functions.cal_distance(stdlong, stdlat, objlong, objlat)
+        dis = cal_distance(stdlong, stdlat, objlong, objlat)
         if dis < 600:
             count600 = count600 + 1
             com = com + df3['coms'][i]
             trans = trans + df3['trans'][i]
             many = many + df3['many75'][i]
-            if dis < 100 :
+            if dis < 100:
                 count100 = count100 + 1
 
     return count100, count600, com, trans, many
@@ -99,7 +101,7 @@ def near_bus_db(long, lat):
     for i in range(len(df2.index)):
         objlong = df3['long'][i]
         objlat = df3['lat'][i]
-        dis = Functions.cal_distance(stdlong, stdlat, objlong, objlat)
+        dis = cal_distance(stdlong, stdlat, objlong, objlat)
         if dis < 200:
             count = count + 1
             com = com + df3['coms'][i]
@@ -115,7 +117,7 @@ def gu_work_db(long, lat):
     # gu_density
 
     # 받아온 좌표를 베이스로 소속 구 이름 받아오기
-    gu = Functions.gu_finder(long, lat)
+    gu = gu_finder(long, lat)
     df_population = pd.read_csv('static/after/population_data.csv', encoding='cp949')
     # 해당 구의 이름과 일치하는 행 불러오기
     df = df_population[['gu', 'total worker', 'density', '20-29', '30-39', '40-49', '50-59', '60-69', 'Totalpop']]
@@ -149,7 +151,7 @@ def near_culture_db(long, lat):
     for i in range(len(df2.index)):
         objlong = df3['long'][i]
         objlat = df3['lat'][i]
-        dis = Functions.cal_distance(stdlong, stdlat, objlong, objlat)
+        dis = cal_distance(stdlong, stdlat, objlong, objlat)
         if dis < 1000:
             count = count + 1
 
@@ -182,28 +184,29 @@ def area_cafe_db(long, lat):
     df2 = df2.iloc[:][df_area['lat'] < stdlat + 0.00225]
     df3 = df2
     df3.reset_index(drop=True, inplace=True)
-
+    # temp_code = ''
     # 영역 내의 점포들 대상으로 거리 계산&비교
     for i in range(len(df3.index)):
         objlong = df3['lon'][i]
         objlat = df3['lat'][i]
 
-        dis = Functions.cal_distance(stdlong, stdlat, objlong, objlat)
+        dis = cal_distance(stdlong, stdlat, objlong, objlat)
         # 거리를 받아올때마다 250m 이내인지 비교
         if dis < 250:
             # 해당되는 표본이 들어올때마다 비교하여 최소값 갱신. 최소값일때의 코드값 저장하여 상권정보 저장.
-            area_count = area_count + 1
-
             # 마지막에 남은 상권정보가 점포에서 가장 가까운 상권.
             if dis < temp_dis:
                 temp_dis = dis
                 temp_code = df3['code'][i]
+                area_count = area_count + 1
 
     # temp_code = 가장 가까운 상권의 코드
 
     if area_count == 0:
         # 변동없음 = 250m이내의 상권이 하나도 없었음.
         no = 1
+        area_avgTake=0
+        area_avgCustomer=0
     else:
         # 검색된 상권 있음
         if df3[df3['code'] == temp_code]['area_type'].values[0] == '발달상권':
@@ -213,18 +216,17 @@ def area_cafe_db(long, lat):
         else:
             gi = 1
 
-    area_cafe = df3[df3['code'] == temp_code]['area_store'].values[0]
-    area_avgTake = df3[df3['code'] == temp_code]['avg_take'].values[0]
-    area_avgCustomer = df3[df3['code'] == temp_code]['tot_customer'].values[0]
+        area_avgTake = df3[df3['code'] == temp_code]['avg_take'].values[0]
+        area_avgCustomer = df3[df3['code'] == temp_code]['tot_customer'].values[0]
 
     # 모든 탐색, 비교가 끝나고 거리가 가장 가까운 1개 상권의 코드가 temp_code에 저장됨
 
     # 4번째 기능은 API로 긁어오는걸로 하고 분석용 정보는 다른 데이터셋과 동일하게 처리한다
 
-    return bal, gol, gi, no, area_cafe, area_avgTake, area_avgCustomer, area_count
+    return  area_avgTake, area_avgCustomer, area_count, bal, gol, gi, no,
 
 
-def info(val):
+def franchise_db(val):
     if val == 1:
         저가 = 0
         고가 = 1
@@ -239,3 +241,29 @@ def info(val):
         기타 = 1
 
     return 저가, 고가, 기타
+
+
+def randomforest(data) :
+    ml=joblib.load('static/after/randomforest.pkl')
+    print('----',ml)
+    result = ml.predict(data)
+
+    return result
+
+def input_date(year):
+    qs = CafeStatus.objects.all()
+    datas = qs.values()
+
+    df = pd.DataFrame(datas)
+
+    date = str(year)+'0000'
+
+    df2 = df[(df['open_date'] < int(date)) & (df['close_date'] > int(date))]
+    df3 = df[(df['open_date'] < int(date)) & (df['close_date'] == 0 )]
+    df4 = pd.concat([df2, df3])
+    result = []
+    print(len(df4))
+    for lat, lng in zip(df4['lat'], df4['lng']):
+        result.append([lat, lng])
+
+    return result

@@ -1,90 +1,118 @@
-<html>
-  <head>
-    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
-    <script type="text/javascript">
-      google.charts.load('current', {'packages':['bar']});
-      google.charts.setOnLoadCallback(drawChart);
+<!DOCTYPE html>
+<html lang="en">
+{% load static %}
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
+    <meta name="description" content=""/>
+    <meta name="author" content=""/>
+    <title>SEOUL_CAFE</title>
+    <link rel="icon" type="image/x-icon" href="{% static 'favicon.ico' %}"/>
+    <!-- Font Awesome icons (free version)-->
+    <script src="https://use.fontawesome.com/releases/v5.15.4/js/all.js" crossorigin="anonymous"></script>
+    <!-- Google fonts-->
+    <link href="https://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic" rel="stylesheet"
+          type="text/css"/>
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800"
+          rel="stylesheet" type="text/css"/>
+    <!-- Core theme CSS (includes Bootstrap)-->
+    <link href="{% static 'styles.css' %}" rel="stylesheet"/>
 
-      var data = {{ list|safe }};
-      console.log(data)
+</head>
+<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+{#<script src="/static/canvasjs.min.js"></script>#}
+{#<script src="/static/includeHTML.js"></script>#}
+{#<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>#}
+{#<script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=c410ba3296685ca0ce9d4fd1d0e596ab"></script>#}
+{#<script src="https://cdn.jsdelivr.net/npm/chart.js@2.7.0/dist/Chart.min.js"></script>#}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.0/dist/chart.min.js"></script>
+{#<script src="{% static 'chartjs-plugin-doughnutlabel.js' %}"></script>#}
+{#<script src="{% static  'chartjs-plugin-datalabels.min.js'%}"></script>#}
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+<script type="text/javascript">
+    var data = {{ list|safe }}
+        console.log(data)
 
 
-      date = {{ year }}
-      in_counts = {{ in_count }}
-      out_counts = {{ out_count }}
+    var year = [];
+    var in_count = [];
+    var out_count = [];
+    var in_open = [];
+    var month = [];
 
-      var year = [];
-      var in_count = [];
-      var out_count = [];
+    for (var i = 0; i < data.length; i++) {
+        {#console.log(data[i][0]);#}
+        in_count.push(data[i].in_count);
+        out_count.push(data[i].out_count);
+        in_open.push(data[i].sum_count);
+        month.push(data[i].status_month);
+        year.push(String(data[i].status_year));
+    }
 
-      {% for one in date %}
-          year.push('{{ one }}')
-      {% endfor %}
-      console.log(year)
-      console.log(year.length)
-
-      for (var i=0; i < year.length; i++) {
-          in_count.push(in_counts[i])
-          out_count.push(out_counts[i])
-      }
-
-      console.log(in_count)
-      console.log(out_count)
+    {#console.log(in_count)#}
+    {#console.log(out_count)#}
+    {#console.log(in_open)#}
+    {#console.log(month)#}
+    {#console.log(year)#}
+    google.charts.load('current', {'packages': ['bar']});
+    google.charts.setOnLoadCallback(drawChart);
 
 
-      function drawChart() {
-        var datas = [['year','In_count', 'Out_count']]
-        for (var j=0; j < year.length; j++) {
+    function drawChart() {
+        var datas = [['Year', 'Open', 'Close']]
+        for (var j = 0; j < year.length; j++) {
             datas.push([year[j], in_count[j], out_count[j]])
         }
         var data = google.visualization.arrayToDataTable(datas);
         console.log(data)
 
         var options = {
-          chart: {
-            title: 'Cafe Open Status',
-            subtitle: '',
-          }
+            chart: {
+                title: 'Cafe open/close (Year)',
+                subtitle: '',
+            }
         };
 
         var chart = new google.charts.Bar(document.getElementById('columnchart_material'));
 
         chart.draw(data, google.charts.Bar.convertOptions(options));
-      }
+    }
 
-      google.charts.load('current', {'packages':['line']});
-      google.charts.setOnLoadCallback(drawChart2);
-      function drawChart2() {
-        var datas = [['year','In_count', 'Out_count']]
-        for (var j=0; j < year.length; j++) {
+    google.charts.load('current', {'packages': ['line']});
+    google.charts.setOnLoadCallback(drawChart2);
+
+    function drawChart2() {
+        var datas = [['Year', 'Open', 'Close']]
+        for (var j = 0; j < year.length; j++) {
             datas.push([year[j], in_count[j], out_count[j]])
         }
         var data = google.visualization.arrayToDataTable(datas);
         console.log(data)
 
         var options = {
-          chart: {
-            title: 'Cafe Open Status',
-            subtitle: '',
-          }
+            chart: {
+                title: 'Cafe open/close (Year)',
+                subtitle: '',
+            }
         };
 
         var chart2 = new google.charts.Line(document.getElementById('columnchart_material2'));
 
         chart2.draw(data, google.charts.Line.convertOptions(options));
-      }
+    }
 
-      google.charts.load('current', {'packages':['table']});
-      google.charts.setOnLoadCallback(drawTable);
+    google.charts.load('current', {'packages': ['table']});
+    google.charts.setOnLoadCallback(drawTable);
 
-      function drawTable() {
+    function drawTable() {
         var data = new google.visualization.DataTable();
-        data.addColumn('string', 'Year');
-        data.addColumn('number', 'Open');
-        data.addColumn('number', 'Close');
-        datas =[]
+        data.addColumn('string', '년도');
+        data.addColumn('number', '창업한 수');
+        data.addColumn('number', '폐업한 수');
+        datas = []
 
-        for (var j=0; j < year.length; j++) {
+        for (var j = 0; j < year.length; j++) {
             datas.push([year[j], in_count[j], out_count[j]])
         }
         console.log(datas)
@@ -92,47 +120,37 @@
 
         var table = new google.visualization.Table(document.getElementById('table_div'));
 
-        table.draw(data, {showRowNumber: true, width: 200, height: '100%'});
-      }
+        table.draw(data, {showRowNumber: false, width: 200, height: '100%'});
+    }
+</script>
+</head>
+<body>
+<!-- Navigation-->
+{% include "main/navi.html" %}
 
-      google.charts.load('current', {'packages': ['map'],
-      'mapsApiKey': 'AIzaSyA8xeL4urGef52RBv-5blyg-PjI7Uh9Uf0'
-      });
-      google.charts.setOnLoadCallback(drawMap);
+<!-- Page Header-->
+{% include "main/header.html" %}
 
-      function drawMap () {
-          var data = new google.visualization.DataTable();
-          data.addColumn('string', 'Address');
-          data.addColumn('string', 'Location');
+<!-- menu Naviagtion -->
+{% include "main/indexNavi.html" %}
 
-          data.addRows([
-            ['서울특별시 영등포구 문래동 선유로9길 30', '청년취업사관학교 영등포캠퍼스']
-          ]);
-          var options = {
-            mapType: 'styledMap',
-            zoomLevel: 14,
-            showTooltip: true,
-            showInfoWindow: true,
-            useMapTypeControl: false,
-            // User will only be able to view/select custom styled maps.
-            maps: {
-              styledMap: {
-                name: 'Styled Map',
-                }
+<!-- Main Content-->
+<div class="container">
+    <div class="row">
+        <div class="col-12 col-md-12 col-sm-12">
+            <table>
+                <tr class="col-10 col-md-10 col-sm-10">
+                    <td class="col-8 col-md-8 col-sm-8" id="columnchart_material"
+                        style="width: 800px; height: 300px"></td>
+                    <td class="col-2 col-md-2 col-sm-2" rowspan="2" id="table_div"></td>
+                </tr>
+                <tr class="col-10 col-md-10 col-sm-10">
+                    <td class="col-8 col-md-8 col-sm-8" id="columnchart_material2" style="width: 800px; height: 300px"></td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</div>
 
-            }
-          };
-          var map = new google.visualization.Map(document.getElementById('map_div'));
-
-          map.draw(data, options);
-        }
-
-    </script>
-  </head>
-  <body>
-    <div id="columnchart_material" style="width: 800px; height: 300px;"></div><br>
-    <div id="columnchart_material2" style="width: 800px; height: 300px;"></div><br>
-    <div id="table_div" style="width: 100%; height: 100%;"></div><br>
-    <div id="map_div" style="width: 800px; height: 300px;"></div>
-  </body>
+</body>
 </html>

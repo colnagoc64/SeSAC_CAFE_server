@@ -10,7 +10,7 @@ def kagoo_address_xy(addr):
     try:
         result = ""
         url = 'https://dapi.kakao.com/v2/local/search/address.json?query=' + addr
-        rest_api_key = '1a49bbda495de8f7505fd57396d8eac3'
+        rest_api_key = 'd14be6002a90d442569859af3ed267bf'
         header = {'Authorization': 'KakaoAK ' + rest_api_key}
 
         r = requests.get(url, headers=header)

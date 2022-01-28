@@ -2,9 +2,9 @@ from django.shortcuts import render
 
 # Create your views here.
 
-def timeseries(request):
+def predict(request):
+    context = {
 
+    }
 
-
-
-    return render(request, "timeseries/timeseries.html")
+    return render(request, 'timeSeries/predict.html', context)

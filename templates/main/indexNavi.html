@@ -26,7 +26,7 @@
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" data-toggle="dropdown">년도별 분포</a>
                         <div class="dropdown-menu">
-                            <form name="year" action='{% url "map2" %}' method="post">
+                            <form name="year" action="/main/map2" method="post">
                                 {% csrf_token %}
                                 <button name="year" value="2022" style="background-color:transparent;border: none"><a class="dropdown-item">2022-11</a></button>
                                 <button name="year" value="2020" style="background-color:transparent;border: none"><a class="dropdown-item">2020 년</a></button>

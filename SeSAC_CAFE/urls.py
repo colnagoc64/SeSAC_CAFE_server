@@ -19,10 +19,12 @@ from django.urls import path, include
 import SeSAC_CAFE.views
 
 urlpatterns = [
-    path('admin', admin.site.urls),
+    path('admin/', admin.site.urls),
     path('', SeSAC_CAFE.views.start),
-    path('main', include('main.urls')),
-    path('mlpred',include('mlpred.urls')),
-    path('timeseries',include('timeseries.urls')),
-
+    path('sign/', include('sign.urls')),
+    path('board/', include('board.urls')),
+    path('timeSeries/', include('timeSeries.urls')),
+    path('main/', include('main.urls')),
+    path('mlpred/',include('mlpred.urls')),
 ]
+
