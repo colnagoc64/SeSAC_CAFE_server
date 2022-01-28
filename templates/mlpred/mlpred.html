@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
+    <meta name="description" content=""/>
+    <meta name="author" content=""/>
+    <title>SEOUL_CAFE</title>
+    <link rel="icon" type="image/x-icon" href="/static/favicon.ico"/>
+    <!-- Font Awesome icons (free version)-->
+    <script src="https://use.fontawesome.com/releases/v5.15.4/js/all.js" crossorigin="anonymous"></script>
+    <!-- Google fonts-->
+    <link href="https://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic" rel="stylesheet"
+          type="text/css"/>
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800"
+          rel="stylesheet" type="text/css"/>
+    <!-- Core theme CSS (includes Bootstrap)-->
+    <link href="/static/styles.css" rel="stylesheet"/>
+</head>
+<div class="btn-group-vertical">
+  ...
+</div>
+
+
+<head>
+    <style>
+    .map_wrap {position:relative;width:80%;height:350px;}
+    .title {font-weight:bold;display:block;}
+    .hAddr {position:absolute;left:10px;top:10px;border-radius: 2px;background:#fff;background:rgba(255,255,255,0.8);z-index:1;padding:5px;}
+    #centerAddr {display:block;margin-top:2px;font-weight: normal;}
+    .bAddr {padding:5px;text-overflow: ellipsis;overflow: hidden;white-space: nowrap;}
+</style>
+</head>
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script>
+        $(function () { // = document.ready()
+            $('#b1').click(function () {
+                console.log("버튼클릭후", latLng.La)
+                console.log($('#area').val())
+                console.log($('#pric').val())
+             if (confirm("검색할 곳이 맞습니까???") == true){    //확인
+                 $.ajax({
+                     url : '',
+                     data : {
+                         lat : latLng.La,
+                         lng : latLng.Ma,
+                         area : $('#area').val(),
+                         pric : $('#pric').val(),
+                     },
+
+                     success : function (result) {
+                         alert(result)
+                     }
+                 })
+             }else{   //취소
+                 return false;
+             }
+            })
+        })
+
+    </script>
+
+<body>
+<!-- Navigation-->
+<nav class="navbar navbar-expand-lg navbar-light" id="mainNav">
+    <div class="container px-4 px-lg-5">
+        <a class="navbar-brand" href="/main">SEOUL_CAFE</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarResponsive"
+                aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
+            Menu
+            <i class="fas fa-bars"></i>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarResponsive">
+            <ul class="navbar-nav ms-auto py-4 py-lg-0">
+                <li class="nav-item"><a class="nav-link px-lg-3 py-3 py-lg-4" href="/main">카페현황</a></li>
+                <li class="nav-item"><a class="nav-link px-lg-3 py-3 py-lg-4" href="/mlpred">창업예측</a></li>
+                <li class="nav-item"><a class="nav-link px-lg-3 py-3 py-lg-4" href="/timeseries">향후예측</a></li>
+                <li class="nav-item"><a class="nav-link px-lg-3 py-3 py-lg-4" href="contact.html">상권분석</a></li>
+                <li class="nav-item"><a class="nav-link px-lg-3 py-3 py-lg-4" href="contact.html">게시판</a></li>
+                <li class="nav-item"><a class="nav-link px-lg-3 py-3 py-lg-4" href="contact.html">로그인</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+<!-- Page Header-->
+<header class="masthead" style="background-image: url('/static/img/home_bg.jpg')">
+    <div class="container position-relative px-4 px-lg-5">
+        <div class="row gx-4 gx-lg-5 justify-content-center">
+            <div class="col-md-10 col-lg-8 col-xl-7">
+                <div class="site-heading">
+                    <h1>CAFE STATUS</h1>
+                    <span class="subheading">SSAC 3기 Project 1조</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+<!-- Main Content-->
+<div class="map_wrap">
+    <div id="map" style="width:100%;height:100%;position:relative;overflow:hidden;"></div>
+    <div class="hAddr">
+        <span class="title"></span>
+        <span id="centerAddr"></span>
+    </div>
+</div>
+
+<script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=83db2ce2590fc87afc4a6b91c3803caf&libraries=services"></script>
+<script>
+var mapContainer = document.getElementById('map'), // 지도를 표시할 div
+    mapOption = {
+        center: new kakao.maps.LatLng(37.566826, 126.9786567), // 지도의 중심좌표
+        level: 8 // 지도의 확대 레벨
+    };
+console.log(mapContainer)
+// 지도를 생성합니다
+var map = new kakao.maps.Map(mapContainer, mapOption);
+
+// 주소-좌표 변환 객체를 생성합니다
+var geocoder = new kakao.maps.services.Geocoder();
+
+
+var marker = new kakao.maps.Marker(), // 클릭한 위치를 표시할 마커입니다
+    infowindow = new kakao.maps.InfoWindow({zindex:1}); // 클릭한 위치에 대한 주소를 표시할 인포윈도우입니다
+
+// 현재 지도 중심좌표로 주소를 검색해서 지도 좌측 상단에 표시합니다
+searchAddrFromCoords(map.getCenter(), displayCenterInfo);
+
+// 지도를 클릭했을 때 클릭 위치 좌표에 대한 주소정보를 표시하도록 이벤트를 등록합니다
+kakao.maps.event.addListener(map, 'click', function(mouseEvent) {
+    searchDetailAddrFromCoords(mouseEvent.latLng, function(result, status) {
+        if (status === kakao.maps.services.Status.OK) {
+            var detailAddr = !!result[0].road_address ? '<div>도로명주소 : ' + result[0].road_address.address_name + '</div>' : '';
+            detailAddr += '<div>지번 주소 : ' + result[0].address.address_name + '</div>';
+
+            var content = '<div class="bAddr">' +
+                            '<span class="title">법정동 주소정보</span>' +
+                            detailAddr +
+                        '</div>';
+
+            // 마커를 클릭한 위치에 표시합니다
+            marker.setPosition(mouseEvent.latLng);
+            marker.setMap(map);
+
+             // 넘겨줄 좌표 코드
+            latLng=mouseEvent.latLng
+            console.log(mouseEvent.latLng)
+
+            // 인포윈도우에 클릭한 위치에 대한 법정동 상세 주소정보를 표시합니다
+            infowindow.setContent(content);
+            infowindow.open(map, marker);
+        }
+
+    });
+});
+
+// 중심 좌표나 확대 수준이 변경됐을 때 지도 중심 좌표에 대한 주소 정보를 표시하도록 이벤트를 등록합니다
+kakao.maps.event.addListener(map, 'idle', function() {
+    searchAddrFromCoords(map.getCenter(), displayCenterInfo);
+});
+
+function searchAddrFromCoords(coords, callback) {
+    // 좌표로 행정동 주소 정보를 요청합니다
+    geocoder.coord2RegionCode(coords.getLng(), coords.getLat(), callback);
+}
+
+function searchDetailAddrFromCoords(coords, callback) {
+    // 좌표로 법정동 상세 주소 정보를 요청합니다
+    geocoder.coord2Address(coords.getLng(), coords.getLat(), callback);
+}
+
+// 지도 좌측상단에 지도 중심좌표에 대한 주소정보를 표출하는 함수입니다
+function displayCenterInfo(result, status) {
+    if (status === kakao.maps.services.Status.OK) {
+        var infoDiv = document.getElementById('centerAddr');
+
+        for(var i = 0; i < result.length; i++) {
+            // 행정동의 region_type 값은 'H' 이므로
+            if (result[i].region_type === 'H') {
+                infoDiv.innerHTML = result[i].address_name;
+                break;
+            }
+        }
+    }
+}
+</script>
+<div class="container py-5">
+    <div>
+        <label>면적 입력</label>
+        <input id="area">
+            <select id="pric">
+            <option value="1">스타벅스</option>
+            <option value="1">투썸</option>
+            <li><option value="2">메가커피</option></li>
+            <li><option value="2">이디야</option></li>
+            <li><option value="2">빽다방</option></li>
+            <li><option value="1">풀바셋</option></li>
+            <li><option value="1">할리스</option></li>
+            <li><option value="2">커피빈</option></li>
+            <li><option value="1">엔제리너스</option></li>
+            <li><option value="1">파스쿠찌</option></li>
+            <li><option value="2">커피베이</option></li>
+            <li><option value="1">탐엔탐스</option></li>
+            <li><option value="1">카페베네</option></li>
+            <li><option value="2">매머드</option></li>
+            <li><option value="2">드롭탑</option></li>
+            <li><option value="2">더카페</option></li>
+            <li><option value="2">더벤티</option></li>
+            <li><option value="2">컴포즈커피</option></li>
+            <li><option value="2">더리터</option></li>
+            <li><option value="3">개인커피</option></li>
+            </select>
+        <button id='b1'>검색하기</button>
+    </div>
+</div>
+<!-- Footer-->
+<footer class="border-top">
+    <div class="container px-4 px-lg-5">
+        <div class="row gx-4 gx-lg-5 justify-content-center">
+            <div class="col-md-10 col-lg-8 col-xl-7">
+                <div class="small text-center text-muted fst-italic">Copyright &copy; SSAC 3기 Project 2021</div>
+            </div>
+        </div>
+    </div>
+</footer>
+<!-- Bootstrap core JS-->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+<!-- Core theme JS-->
+<script src="/static/scripts.js"></script>
+</body>
+</html>

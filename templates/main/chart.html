@@ -1,0 +1,138 @@
+<html>
+  <head>
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript">
+      google.charts.load('current', {'packages':['bar']});
+      google.charts.setOnLoadCallback(drawChart);
+
+      var data = {{ list|safe }};
+      console.log(data)
+
+
+      date = {{ year }}
+      in_counts = {{ in_count }}
+      out_counts = {{ out_count }}
+
+      var year = [];
+      var in_count = [];
+      var out_count = [];
+
+      {% for one in date %}
+          year.push('{{ one }}')
+      {% endfor %}
+      console.log(year)
+      console.log(year.length)
+
+      for (var i=0; i < year.length; i++) {
+          in_count.push(in_counts[i])
+          out_count.push(out_counts[i])
+      }
+
+      console.log(in_count)
+      console.log(out_count)
+
+
+      function drawChart() {
+        var datas = [['year','In_count', 'Out_count']]
+        for (var j=0; j < year.length; j++) {
+            datas.push([year[j], in_count[j], out_count[j]])
+        }
+        var data = google.visualization.arrayToDataTable(datas);
+        console.log(data)
+
+        var options = {
+          chart: {
+            title: 'Cafe Open Status',
+            subtitle: '',
+          }
+        };
+
+        var chart = new google.charts.Bar(document.getElementById('columnchart_material'));
+
+        chart.draw(data, google.charts.Bar.convertOptions(options));
+      }
+
+      google.charts.load('current', {'packages':['line']});
+      google.charts.setOnLoadCallback(drawChart2);
+      function drawChart2() {
+        var datas = [['year','In_count', 'Out_count']]
+        for (var j=0; j < year.length; j++) {
+            datas.push([year[j], in_count[j], out_count[j]])
+        }
+        var data = google.visualization.arrayToDataTable(datas);
+        console.log(data)
+
+        var options = {
+          chart: {
+            title: 'Cafe Open Status',
+            subtitle: '',
+          }
+        };
+
+        var chart2 = new google.charts.Line(document.getElementById('columnchart_material2'));
+
+        chart2.draw(data, google.charts.Line.convertOptions(options));
+      }
+
+      google.charts.load('current', {'packages':['table']});
+      google.charts.setOnLoadCallback(drawTable);
+
+      function drawTable() {
+        var data = new google.visualization.DataTable();
+        data.addColumn('string', 'Year');
+        data.addColumn('number', 'Open');
+        data.addColumn('number', 'Close');
+        datas =[]
+
+        for (var j=0; j < year.length; j++) {
+            datas.push([year[j], in_count[j], out_count[j]])
+        }
+        console.log(datas)
+        data.addRows(datas)
+
+        var table = new google.visualization.Table(document.getElementById('table_div'));
+
+        table.draw(data, {showRowNumber: true, width: 200, height: '100%'});
+      }
+
+      google.charts.load('current', {'packages': ['map'],
+      'mapsApiKey': 'AIzaSyA8xeL4urGef52RBv-5blyg-PjI7Uh9Uf0'
+      });
+      google.charts.setOnLoadCallback(drawMap);
+
+      function drawMap () {
+          var data = new google.visualization.DataTable();
+          data.addColumn('string', 'Address');
+          data.addColumn('string', 'Location');
+
+          data.addRows([
+            ['서울특별시 영등포구 문래동 선유로9길 30', '청년취업사관학교 영등포캠퍼스']
+          ]);
+          var options = {
+            mapType: 'styledMap',
+            zoomLevel: 14,
+            showTooltip: true,
+            showInfoWindow: true,
+            useMapTypeControl: false,
+            // User will only be able to view/select custom styled maps.
+            maps: {
+              styledMap: {
+                name: 'Styled Map',
+                }
+
+            }
+          };
+          var map = new google.visualization.Map(document.getElementById('map_div'));
+
+          map.draw(data, options);
+        }
+
+    </script>
+  </head>
+  <body>
+    <div id="columnchart_material" style="width: 800px; height: 300px;"></div><br>
+    <div id="columnchart_material2" style="width: 800px; height: 300px;"></div><br>
+    <div id="table_div" style="width: 100%; height: 100%;"></div><br>
+    <div id="map_div" style="width: 800px; height: 300px;"></div>
+  </body>
+</html>
